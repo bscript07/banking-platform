@@ -11,8 +11,8 @@ const ibmPlexSerif = IBM_Plex_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "DZI Finance",
-  description: "DZI Finance is a modern banking platform for everyone.",
+  title: "SpaceB",
+  description: "SpaceB is a modern banking platform for everyone.",
   icons: {
     icon: '/icons/logo.svg'
   }

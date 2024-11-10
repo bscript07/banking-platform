@@ -18,10 +18,10 @@ const Sidebar = ( { user }: SiderbarProps) => {
         src='/icons/logo.svg'
         width={34}
         height={34}
-        alt="DZI Finance logo"
+        alt="Space Bank logo"
         className="size-[24px] max-xl:size-14"
         />
-        <h1 className="sidebar-logo">DZI Finance</h1>
+        <h1 className="sidebar-logo">SpaceB</h1>
         </Link>
 
         {sidebarLinks.map((item) => {

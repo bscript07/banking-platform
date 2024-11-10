@@ -22,15 +22,22 @@ import { Input } from "@/components/ui/input"
 import CustomInput from './CustomInput';
 import { authFormSchema } from '@/lib/utils';
 import { Loader2 } from 'lucide-react';
+import { log } from 'console';
+import SignUp from '@/app/(auth)/sign-up/page';
+import { useRouter } from 'next/navigation';
+import { signIn, signUp } from '@/lib/actions/user.actions';
 
 const AuthForm = ({ type }: { type: string }) => {
+    const router = useRouter();
 
     const [user, setUser] = useState(null);
     const [isLoading, setIsLoading] = useState(false);
 
+    const formSchema = authFormSchema(type);
+
     // Define form
-    const form = useForm<z.infer<typeof authFormSchema>>({
-        resolver: zodResolver(authFormSchema),
+    const form = useForm<z.infer<typeof formSchema>>({
+        resolver: zodResolver(formSchema),
         defaultValues: {
             email: '',
             password: ''
@@ -38,9 +45,35 @@ const AuthForm = ({ type }: { type: string }) => {
     })
 
     // onSubmit 
-    function onSubmit(values: z.infer<typeof authFormSchema>) {
+    const onSubmit = async (data: z.infer<typeof formSchema>) => {
         setIsLoading(true);
-        console.log(values);
+
+        try {
+            // Sign up with Appwrite & create plain token
+
+            if (type === 'sign-up') {
+                const newUser = await signUp(data);
+
+                setUser(newUser);
+            } 
+
+            if (type === 'sign-in') {
+                const responce = await signIn({
+                    email: data.email,
+                    password: data.password
+                });
+
+                if (responce) {
+                    router.push('/')
+                }
+            } 
+        } catch (error) {
+            console.log(error);
+            
+        } finally {
+            setIsLoading(false);
+        }
+        console.log(data);
         setIsLoading(false);
     }
 
@@ -52,9 +85,9 @@ const AuthForm = ({ type }: { type: string }) => {
                         src='/icons/logo.svg'
                         width={34}
                         height={34}
-                        alt="DZI Finance logo"
+                        alt="Space Bank Logo"
                     />
-                    <h1 className="text-26 font-ibm-plex-serif font-bold text-black-1 ml-5">DZI Finance</h1>
+                    <h1 className="text-26 font-ibm-plex-serif font-bold text-black-1 ml-5">SpaceB</h1>
                 </Link>
 
                 <div className="flex flex-col gap-1 md:gap-3">
@@ -85,6 +118,40 @@ const AuthForm = ({ type }: { type: string }) => {
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
 
+                        {type === "sign-up" && (
+                        <>
+                           <div className="flex gap-4">
+                            <CustomInput control={form.control}
+                            name='firstName' label='First Name'
+                            placeholder='Enter your first name' />
+                            <CustomInput control={form.control}
+                            name='lastName' label='Last Name'
+                            placeholder='Enter your last name' />
+                           </div>
+                            <CustomInput control={form.control}
+                            name='address1' label='Address'
+                            placeholder='Enter your specific address' />
+                            <CustomInput control={form.control}
+                            name='city' label='City'
+                            placeholder='Enter your city' />
+                            <div className="flex gap-4">
+                            <CustomInput control={form.control}
+                            name='state' label='State'
+                            placeholder='ex: NY' />
+                            <CustomInput control={form.control}
+                            name='postalCode' label='Postal Code'
+                            placeholder='ex: 11101' />
+                            </div>
+                            <div className="flex gap-4">
+                            <CustomInput control={form.control}
+                            name='dateOfBirth' label='Date of Birth'
+                            placeholder='yyyy-mm-dd' />
+                            <CustomInput control={form.control}
+                            name='ssn' label='SSN'
+                            placeholder='ex: 1234' />
+                            </div>
+                        </>
+                        )}
                             <CustomInput control={form.control}
                             name='email' label='Email'
                             placeholder='Enter your email' />
@@ -101,8 +168,7 @@ const AuthForm = ({ type }: { type: string }) => {
                                       Loading...
                                     </>
                                 ) : type === 'sign-in' 
-                                ? 'Sign In'
-                            : 'Sign Up'}
+                                  ? 'Sign In' : 'Sign Up'}
                             </Button>
                             </div>
                         </form>
